@@ -1,0 +1,44 @@
+{
+  "ue_project_path": "",
+  "ue_editor_path": "C:/Program Files/Epic Games/UE_4.27/Engine/Binaries/Win64/UE4Editor.exe",
+  "output_path": "",
+  "scan": {
+    "content_paths": ["/Game/"],
+    "asset_class_filter": "StaticMesh"
+  },
+  "layout": {
+    "mode": "grid",
+    "grid_columns": 5,
+    "grid_spacing": 300.0,
+    "random_area": 2000.0,
+    "circle_radius": 1000.0,
+    "ground_z": 0.0,
+    "random_rotation": true,
+    "random_scale_min": 1.0,
+    "random_scale_max": 1.0
+  },
+  "camera": {
+    "preset": "isometric",
+    "fov": 60.0,
+    "distance_multiplier": 1.5,
+    "height_offset": 200.0,
+    "angle_pitch": -45.0,
+    "angle_yaw": 45.0
+  },
+  "render": {
+    "method": "hires",
+    "resolution_width": 1920,
+    "resolution_height": 1080,
+    "hires_multiplier": 2,
+    "mrq_preset_path": "/Game/Cinematics/RenderPreset",
+    "output_format": "png",
+    "per_prop": true,
+    "group": false
+  },
+  "lighting": {
+    "preset": "studio",
+    "sky_light_intensity": 1.0,
+    "directional_light_intensity": 5.0,
+    "directional_light_angle": 45.0
+  }
+}
