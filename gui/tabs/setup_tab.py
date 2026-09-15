@@ -134,7 +134,7 @@ class SetupTab:
         ).pack(side="right")
         
         # ── Remote Execution 설정 ────────────────────────────────────
-        self._section(scroll, "🔌 UE Remote Execution")
+        self._section(scroll, "🔌 UE 연결 설정 (내 컴퓨터 또는 원격 PC)")
         
         re_frame = ctk.CTkFrame(scroll, fg_color=BG_CARD, corner_radius=10)
         re_frame.pack(fill="x", padx=8, pady=(0, 12))
@@ -142,21 +142,36 @@ class SetupTab:
         re_inner = ctk.CTkFrame(re_frame, fg_color="transparent")
         re_inner.pack(fill="x", padx=14, pady=12)
         
+        ctk.CTkLabel(
+            re_inner, text="원격 언리얼 PC IP 주소 (내 컴퓨터일 경우 비워두거나 127.0.0.1):",
+            font=ctk.CTkFont(size=12), text_color=TEXT_SEC
+        ).pack(anchor="w", pady=(0, 4))
+        
+        ip_row = ctk.CTkFrame(re_inner, fg_color="transparent")
+        ip_row.pack(fill="x", pady=(0, 8))
+        
+        self.target_ip_var = tk.StringVar(value="")
+        ctk.CTkEntry(
+            ip_row, textvariable=self.target_ip_var,
+            fg_color=BG_INPUT, border_color=ACCENT, text_color=TEXT_PRI,
+            placeholder_text="예: 192.168.0.50 (자동 검색 시 비워둠)"
+        ).pack(side="left", fill="x", expand=True, padx=(0, 8))
+        
         # 연결 테스트 버튼
         self.test_btn = ctk.CTkButton(
-            re_inner, text="연결 테스트",
+            ip_row, text="연결 테스트",
             fg_color=BG_INPUT, hover_color=ACCENT, text_color=TEXT_PRI, width=120,
             command=self._test_connection
         )
-        self.test_btn.pack(side="left")
+        self.test_btn.pack(side="right")
         
         self.conn_label = ctk.CTkLabel(
             re_inner,
-            text="UE 에디터에서 Preferences > Python > Remote Execution을 활성화하세요.",
+            text="언리얼 에디터 Preferences > Python > Remote Execution 활성화 필요",
             font=ctk.CTkFont(size=11),
             text_color=TEXT_SEC
         )
-        self.conn_label.pack(side="left", padx=12)
+        self.conn_label.pack(anchor="w", pady=(2, 0))
         
         # 저장 버튼
         ctk.CTkButton(
@@ -202,9 +217,10 @@ class SetupTab:
         import threading
         
         self.test_btn.configure(state="disabled", text="테스트 중...")
+        target_ip = self.target_ip_var.get().strip() or None
         
         def _check():
-            ok = is_ue_remote_available(timeout=5.0)
+            ok = is_ue_remote_available(target_ip=target_ip, timeout=5.0)
             color = SUCCESS if ok else "#FF6B6B"
             text  = "✅ UE 에디터 연결 성공!" if ok else "❌ UE 에디터를 찾을 수 없습니다."
             self.conn_label.after(0, lambda: self.conn_label.configure(text=text, text_color=color))
@@ -219,6 +235,7 @@ class SetupTab:
         self.ue_editor_var.set(cfg.get("ue_editor_path", ""))
         self.project_var.set(cfg.get("ue_project_path", ""))
         self.output_var.set(cfg.get("output_path", ""))
+        self.target_ip_var.set(cfg.get("target_ip", ""))
         paths = cfg.get("scan", {}).get("content_paths", ["/Game/"])
         self.content_paths_var.set(", ".join(paths))
 
@@ -226,6 +243,7 @@ class SetupTab:
         config["ue_editor_path"]  = self.ue_editor_var.get().strip()
         config["ue_project_path"] = self.project_var.get().strip()
         config["output_path"]     = self.output_var.get().strip()
+        config["target_ip"]       = self.target_ip_var.get().strip()
         raw_paths = self.content_paths_var.get()
         config.setdefault("scan", {})["content_paths"] = [
             p.strip() for p in raw_paths.split(",") if p.strip()

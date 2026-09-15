@@ -198,6 +198,19 @@ def execute_pipeline_in_ue(config: dict, ue_scripts_dir: str) -> bool:
     with open(config_path, "w", encoding="utf-8") as f:
         json.dump(config, f, ensure_ascii=False)
     
+    target_ip = config.get("target_ip", "").strip() or None
+    return run_via_remote(config_path, target_ip=target_ip)
+
+
+def run_via_remote(config_path: str, target_ip: str = None) -> bool:
+    """
+    실행 중인 UE 에디터에 Remote Execution으로 run_all.py 실행 명령을 보냅니다.
+    """
+    ue_scripts_dir = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "ue_scripts"
+    )
+    
     # 실행 코드 구성
     code = f"""
 import sys
@@ -209,7 +222,7 @@ run_all.run(config_path=r"{config_path.replace(chr(92), "/")}")
     
     client = UERemoteClient()
     try:
-        client.connect()
+        client.connect(target_ip=target_ip)
         result = client.run_command(code.strip(), exec_mode="ExecuteStatement")
         return result.get("success", False)
     except ConnectionError as e:
@@ -243,8 +256,13 @@ def launch_ue_editor(ue_editor_path: str, uproject_path: str, python_script_path
     return proc
 
 
-def is_ue_remote_available(timeout=3.0) -> bool:
+def is_ue_remote_available(target_ip: str = None, timeout=3.0) -> bool:
     """UE Remote Execution이 사용 가능한지 확인합니다."""
     client = UERemoteClient(timeout=timeout)
-    host, _ = client.discover()
-    return host is not None
+    try:
+        client.connect(target_ip=target_ip)
+        return True
+    except ConnectionError:
+        return False
+    finally:
+        client.close()
