@@ -93,9 +93,12 @@ class UERemoteClient:
         
         return None, None
 
-    def connect(self):
+    def connect(self, target_ip=None):
         """UE 에디터에 TCP 연결합니다."""
-        host, port = self.discover()
+        if target_ip:
+            host, port = target_ip, self.command_port
+        else:
+            host, port = self.discover()
         if host is None:
             raise ConnectionError("UE 에디터를 찾을 수 없습니다. Remote Execution이 활성화되었는지 확인하세요.")
         
